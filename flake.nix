@@ -21,6 +21,7 @@
       in
       {
         packages.default = lsleases;
+        packages.lsleases = lsleases;
 
         devShells.default =
           # self.packages.${system}.default.overrideAttrs (super: {
