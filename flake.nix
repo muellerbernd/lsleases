@@ -48,11 +48,12 @@
         # Other options beside 'alejandra' include 'nixpkgs-fmt'
         formatter = pkgs.alejandra;
 
-        nixosModules.default = ./nix/modules;
-
         # overlays.default = final: prev: {
         #   # inherit (packages.${system}) lsleases;
         # };
+      };
+      flake = {
+        nixosModules.default = ./nix/modules;
       };
     };
   # // {

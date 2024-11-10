@@ -8,7 +8,7 @@
 buildGoModule rec {
   name = "lsleases";
 
-  src = lib.cleanSource ./.;
+  src = lib.cleanSource ../.;
 
   vendorHash = "sha256-mqtJX1Qt7UD69HcXr21TIOZxag4F42g1oKaJUR/kicM=";
 
