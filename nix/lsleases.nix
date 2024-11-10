@@ -1,5 +1,10 @@
 # Helpful documentation: https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/go.section.md
-{ lib, stdenv, installShellFiles, buildGoModule }:
+{
+  lib,
+  stdenv,
+  installShellFiles,
+  buildGoModule,
+}:
 buildGoModule rec {
   name = "lsleases";
 

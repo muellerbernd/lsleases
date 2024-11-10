@@ -20,7 +20,7 @@
         system,
         ...
       }: {
-        packages.lsleases = pkgs.callPackage ./lsleases.nix {};
+        packages.lsleases = pkgs.callPackage ./nix/lsleases.nix {};
         overlayAttrs = {
           inherit (config.packages) lsleases;
         };
@@ -44,6 +44,12 @@
             lsleases
             ;
         };
+        # Formatter for your nix files, available through 'nix fmt'
+        # Other options beside 'alejandra' include 'nixpkgs-fmt'
+        formatter = pkgs.alejandra;
+
+        nixosModules.default = ./nix/modules;
+
         # overlays.default = final: prev: {
         #   # inherit (packages.${system}) lsleases;
         # };

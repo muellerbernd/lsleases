@@ -1,9 +1,12 @@
 let
-
-  fetchNixpkgs = {rev, sha256}: builtins.fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs-channels/archive/${rev}.tar.gz";
-    inherit sha256;
-  };
+  fetchNixpkgs = {
+    rev,
+    sha256,
+  }:
+    builtins.fetchTarball {
+      url = "https://github.com/NixOS/nixpkgs-channels/archive/${rev}.tar.gz";
+      inherit sha256;
+    };
 
   nixpkgs = fetchNixpkgs {
     # nixos-20.03 of 08.08.2020
@@ -13,8 +16,8 @@ let
 
   pkgs = import nixpkgs {};
 
-  version =
-    let mkVersion = pkgs.stdenv.mkDerivation {
+  version = let
+    mkVersion = pkgs.stdenv.mkDerivation {
       src = ./.;
       name = "mkVersion";
       phases = "buildPhase";
@@ -23,7 +26,8 @@ let
         ${pkgs.git}/bin/git -C $src describe --always --tags > $out/version
       '';
     };
-    in pkgs.lib.removeSuffix "\n" (builtins.readFile "${mkVersion}/version");
+  in
+    pkgs.lib.removeSuffix "\n" (builtins.readFile "${mkVersion}/version");
 
   manpage = pkgs.stdenv.mkDerivation rec {
     inherit version;
@@ -43,9 +47,15 @@ let
     '';
   };
 
-
-  lsleases = {arch ? "amd64", goos ? "linux" }:
-    let goModule = if arch == "i386" then pkgs.pkgsi686Linux.buildGoModule else pkgs.buildGoModule; in
+  lsleases = {
+    arch ? "amd64",
+    goos ? "linux",
+  }: let
+    goModule =
+      if arch == "i386"
+      then pkgs.pkgsi686Linux.buildGoModule
+      else pkgs.buildGoModule;
+  in
     goModule rec {
       inherit version goos;
       pname = "lsleases";
@@ -65,10 +75,12 @@ let
         export GOOS=${goos}
       '';
 
-      installPhase  = ''
-        BIN_PATH=${if goos == pkgs.stdenv.buildPlatform.parsed.kernel.name
-                   then "$GOPATH/bin"
-                   else "$GOPATH/bin/${goos}_$GOARCH"}
+      installPhase = ''
+        BIN_PATH=${
+          if goos == pkgs.stdenv.buildPlatform.parsed.kernel.name
+          then "$GOPATH/bin"
+          else "$GOPATH/bin/${goos}_$GOARCH"
+        }
 
         mkdir -p $out/bin
         cp $BIN_PATH/lsleases  $out/bin
@@ -85,17 +97,14 @@ let
         license = licenses.mit;
         maintainers = maintainers.j-keck;
       };
-  };
-
+    };
 in rec {
-
   inherit lsleases;
 
-  package-deb = {arch ? "amd64"}: import ./build/package-deb.nix {inherit pkgs lsleases arch; };
-  package-deb-test = import ./build/package-deb-test.nix { inherit pkgs package-deb; };
+  package-deb = {arch ? "amd64"}: import ./build/package-deb.nix {inherit pkgs lsleases arch;};
+  package-deb-test = import ./build/package-deb-test.nix {inherit pkgs package-deb;};
 
-  package-rpm = {arch ? "amd64"}: import ./build/package-rpm.nix { inherit pkgs lsleases arch; };
+  package-rpm = {arch ? "amd64"}: import ./build/package-rpm.nix {inherit pkgs lsleases arch;};
 
-  package-osx = { arch ? "amd64"}: import ./build/package-osx.nix { inherit pkgs lsleases arch; };
+  package-osx = {arch ? "amd64"}: import ./build/package-osx.nix {inherit pkgs lsleases arch;};
 }
-
