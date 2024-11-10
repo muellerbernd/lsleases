@@ -9,16 +9,18 @@
   # cfg is a typical convention.
   cfg = config.services.lsleases;
 in {
-  imports = [
-    # Paths to other modules.
-    # Compose this module out of smaller ones.
-  ];
-
   options.services.lsleases = {
     # Option declarations.
     # Declare what settings a user of this module can set.
     # Usually this includes a global "enable" option which defaults to false.
     enable = lib.mkEnableOption "lsleases service";
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Whether to open the default ports in the firewall for lsleases.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -38,5 +40,9 @@ in {
     environment.systemPackages = with pkgs; [
       lsleases
     ];
+    networking.firewall = lib.mkIf cfg.openFirewall {
+      allowedTCPPorts = [67 9999];
+      allowedUDPPorts = [67 9999];
+    };
   };
 }
